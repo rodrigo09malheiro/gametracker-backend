@@ -5,7 +5,7 @@ const db = require('../db/database');
 
 // Listar reviews do utilizador
 router.get('/', auth, (req, res) => {
-  const reviews = db.prepare('SELECT * FROM reviews WHERE user_id = ?').all(req.userId);
+  const reviews = db.prepare('SELECT * FROM reviews WHERE user_id = ?').all(req.user.id);
   res.json(reviews);
 });
 
@@ -29,7 +29,7 @@ router.post('/', auth, (req, res) => {
 
   try {
     const stmt = db.prepare('INSERT INTO reviews (user_id, game_id, game_name, rating, comment) VALUES (?, ?, ?, ?, ?)');
-    stmt.run(req.userId, game_id, game_name, rating, comment);
+    stmt.run(req.user.id, game_id, game_name, rating, comment);
     res.status(201).json({ message: 'Review adicionada!' });
   } catch {
     res.status(409).json({ error: 'Já fizeste uma review deste jogo.' });
@@ -39,7 +39,7 @@ router.post('/', auth, (req, res) => {
 // Remover review
 router.delete('/:gameId', auth, (req, res) => {
   const stmt = db.prepare('DELETE FROM reviews WHERE user_id = ? AND game_id = ?');
-  stmt.run(req.userId, req.params.gameId);
+  stmt.run(req.user.id, req.params.gameId);
   res.json({ message: 'Review removida.' });
 });
 

@@ -5,7 +5,7 @@ const db = require('../db/database');
 
 // Listar favoritos
 router.get('/', auth, (req, res) => {
-  const favorites = db.prepare('SELECT * FROM favorites WHERE user_id = ?').all(req.userId);
+  const favorites = db.prepare('SELECT * FROM favorites WHERE user_id = ?').all(req.user.id);
   res.json(favorites);
 });
 
@@ -19,7 +19,7 @@ router.post('/', auth, (req, res) => {
 
   try {
     const stmt = db.prepare('INSERT INTO favorites (user_id, game_id, game_name, game_image, game_rating) VALUES (?, ?, ?, ?, ?)');
-    stmt.run(req.userId, game_id, game_name, game_image, game_rating);
+    stmt.run(req.user.id, game_id, game_name, game_image, game_rating);
     res.status(201).json({ message: 'Adicionado aos favoritos!' });
   } catch {
     res.status(409).json({ error: 'Jogo já está nos favoritos.' });
@@ -29,7 +29,7 @@ router.post('/', auth, (req, res) => {
 // Remover favorito
 router.delete('/:gameId', auth, (req, res) => {
   const stmt = db.prepare('DELETE FROM favorites WHERE user_id = ? AND game_id = ?');
-  stmt.run(req.userId, req.params.gameId);
+  stmt.run(req.user.id, req.params.gameId);
   res.json({ message: 'Removido dos favoritos.' });
 });
 

@@ -5,7 +5,7 @@ const db = require('../db/database');
 
 // Listar wishlist
 router.get('/', auth, (req, res) => {
-  const wishlist = db.prepare('SELECT * FROM wishlist WHERE user_id = ?').all(req.userId);
+  const wishlist = db.prepare('SELECT * FROM wishlist WHERE user_id = ?').all(req.user.id);
   res.json(wishlist);
 });
 
@@ -19,7 +19,7 @@ router.post('/', auth, (req, res) => {
 
   try {
     const stmt = db.prepare('INSERT INTO wishlist (user_id, game_id, game_name, game_image, game_rating) VALUES (?, ?, ?, ?, ?)');
-    stmt.run(req.userId, game_id, game_name, game_image, game_rating);
+    stmt.run(req.user.id, game_id, game_name, game_image, game_rating);
     res.status(201).json({ message: 'Adicionado à wishlist!' });
   } catch {
     res.status(409).json({ error: 'Jogo já está na wishlist.' });
@@ -29,7 +29,7 @@ router.post('/', auth, (req, res) => {
 // Remover da wishlist
 router.delete('/:gameId', auth, (req, res) => {
   const stmt = db.prepare('DELETE FROM wishlist WHERE user_id = ? AND game_id = ?');
-  stmt.run(req.userId, req.params.gameId);
+  stmt.run(req.user.id, req.params.gameId);
   res.json({ message: 'Removido da wishlist.' });
 });
 
